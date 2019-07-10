@@ -115,8 +115,7 @@ def main():
 
 
 def cli():
-    logging.basicConfig(level=logging.DEBUG)
-    loop = asyncio.get_event_loop()
+    logging.basicConfig(level=logging.FATAL)
 
     parser = argparse.ArgumentParser("soldcars-cli")
     commands = parser.add_subparsers(dest="command")
@@ -139,6 +138,10 @@ def cli():
     assert indexcars
 
     args = parser.parse_args()
+
+    loop = asyncio.get_event_loop()
+    Motor().default(io_loop=loop)
+
     if args.command == "fake":
         for i in range(args.start, args.start + args.count):
             car = Car.get_mocked({"serialNumber": i, "modelYear": i})
@@ -163,4 +166,5 @@ def cli():
     else:
         parser.error("too few arguments")
 
+    Motor().close()
     loop.close()
