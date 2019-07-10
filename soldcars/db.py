@@ -72,18 +72,6 @@ Integer32 = partial(Integer, min=0, max=(2 ** 32) - 1)
 """Integer fields."""
 
 
-def get_client(**kwargs):
-    """Return MongoDB client object."""
-
-    client_kwargs = {
-        "host": os.getenv("MONGODB_HOSTS", "mongo:27017").split(","),
-        "replicaSet": os.getenv("MONGODB_REPLSET")
-    }
-    client_kwargs.update(kwargs)
-
-    return aiomotor.AsyncIOMotorClient(**client_kwargs)
-
-
 class Motor(metaclass=Singleton):
     __slots__ = ("_clients",)
 
