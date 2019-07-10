@@ -1,0 +1,18 @@
+version: "3"
+services:
+  mongo:
+    image: mongo:3.4
+    command: --smallfiles
+    volumes:
+      - data:/data/db
+    expose:
+      - 27017
+  app:
+    build: .
+    expose:
+      - 3000
+    depends_on:
+      - mongo
+
+volumes:
+  data:

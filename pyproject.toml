@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "soldcars"
+version = "0.1.0"
+description = "Sold cars storage app"
+authors = ["Mikhail Ushanov <gm.mephisto@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+motor = "^2.0"
+aiohttp = "^3.5"
+object_validator = "^0.2.0"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.7"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
