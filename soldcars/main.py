@@ -80,7 +80,9 @@ async def get_car(request):
     except ValueError:
         raise web.HTTPBadRequest(text="Parameter 'serial' has invalid type.")
 
-    car = await Car.one(serial)
+    # NOTE: using read from secondary with possible
+    #       stale data for increase read capacity
+    car = await Car.one(serial, stale_ok=True)
     return car.asdict()
 
 
