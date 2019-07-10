@@ -91,7 +91,9 @@ async def get_car(request):
 @jsonvalidate(Car.get_scheme())
 async def add_car(request, data):
     car = Car(data)
-    await car.insert()
+
+    # NOTE: using write to majority for increase durability
+    await car.insert(majority=True)
     return {"serial": car["serialNumber"]}
 
 

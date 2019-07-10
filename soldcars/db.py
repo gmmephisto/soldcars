@@ -43,7 +43,7 @@ import motor.motor_asyncio as aiomotor
 import pymongo
 import pymongo.errors
 
-from pymongo import ReadPreference
+from pymongo import ReadPreference, WriteConcern
 from object_validator import validate
 from object_validator import String, Integer, Float, DictScheme
 
@@ -157,6 +157,7 @@ class Car(MutableMapping):
 
     __database__ = "soldcars"
     __collection__ = "cars"
+    __write_majority__ = WriteConcern(w="majority", wtimeout=5000)
 
     @classmethod
     def get_scheme(cls):
@@ -177,12 +178,14 @@ class Car(MutableMapping):
         return Motor().default()[cls.__database__]
 
     @classmethod
-    def collection(cls, stale_ok=False):
+    def collection(cls, stale_ok=False, majority=False):
         """Return collection instance."""
 
         kwargs = {}
         if stale_ok:
             kwargs["read_preference"] = ReadPreference.SECONDARY_PREFERRED
+        elif majority:
+            kwargs["write_concern"] = cls.__write_majority__
 
         return aiomotor.AsyncIOMotorCollection(
             cls.database(), cls.__collection__, **kwargs)
@@ -280,12 +283,15 @@ class Car(MutableMapping):
 
         return json.dumps(self._object)
 
-    async def insert(self):
+    async def insert(self, majority=True):
         """Insert Car document in collection."""
 
         try:
             document_id = self["_id"] = \
-                await self.collection().insert_one(self)
+                await self.collection(majority=majority).insert_one(self)
+        except pymongo.errors.WTimeoutError:
+            # FIXME: add retry on write timeout
+            raise
         except pymongo.errors.DuplicateKeyError:
             raise CarAlreadyExists(self["serialNumber"])
 
