@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import json
 import logging
@@ -105,3 +106,54 @@ def main():
     app = loop.run_until_complete(init(loop))
     web.run_app(app, port=3000)
 
+
+def cli():
+    logging.basicConfig(level=logging.DEBUG)
+    loop = asyncio.get_event_loop()
+
+    parser = argparse.ArgumentParser("soldcars-cli")
+    commands = parser.add_subparsers(dest="command")
+
+    fakecars = commands.add_parser("fake")
+    fakecars.add_argument("count", type=int, help="cars count")
+    fakecars.add_argument("start", type=int, help="serial number start value")
+
+    fakesend = commands.add_parser("fakesend")
+    fakesend.add_argument("serial", type=int, help="car serial")
+    fakesend.add_argument("--host", default="balancer", help="app host[:port]")
+
+    listcars = commands.add_parser("list")
+    listcars.add_argument("--limit", type=int, help="limit cars list")
+
+    dropcars = commands.add_parser("drop")
+    assert dropcars
+
+    indexcars = commands.add_parser("index")
+    assert indexcars
+
+    args = parser.parse_args()
+    if args.command == "fake":
+        for i in range(args.start, args.start + args.count):
+            car = Car.get_mocked({"serialNumber": i, "modelYear": i})
+            loop.run_until_complete(car.insert())
+    elif args.command == "fakesend":
+        async def send(host, serial):
+            car = Car.get_mocked({"serialNumber": serial})
+            url = f"http://{host}/api/cars"
+            session = aiohttp.ClientSession()
+            async with session.post(url, data=car.asjson()) as response:
+                print(await response.json())
+            await session.close()
+        loop.run_until_complete(send(args.host, args.serial))
+    elif args.command == "list":
+        cursor = Car.collection().find()
+        for car in loop.run_until_complete(cursor.to_list(args.limit or 10)):
+            print(car)
+    elif args.command == "drop":
+        loop.run_until_complete(Car.collection().drop())
+    elif args.command == "index":
+        loop.run_until_complete(Car.ensure_index())
+    else:
+        parser.error("too few arguments")
+
+    loop.close()

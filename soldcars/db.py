@@ -211,6 +211,42 @@ class Car(MutableMapping):
             car.pop("_id")
         return cls(car)
 
+    @classmethod
+    def get_mocked(cls, override=None):
+        """Mock a one Car document.
+
+        Attention: use only in tests and cli tools to fake documents!
+        """
+
+        def randstr(length):
+            letters = string.ascii_lowercase
+            return ''.join(random.choice(letters) for i in range(length))
+
+        def _mock(part):
+            d = {}
+            for key, value in part.items():
+                # NOTE: using mangled attributes is not a good way
+                #       but object_validator library was not intend to
+                #       convert or generate new data by the scheme.
+                if isinstance(value, DictScheme):
+                    d[key] = _mock(value._DictScheme__scheme)
+                elif isinstance(value, Integer):
+                    d[key] = random.randint(value._BasicNumber__min or 0,
+                                            value._BasicNumber__max or 100)
+                elif isinstance(value, Float):
+                    d[key] = random.uniform(value._BasicNumber__min or 0,
+                                            value._BasicNumber__max or 100)
+                    d[key] = round(d[key], 2)
+                elif isinstance(value, String):
+                    d[key] = randstr(
+                        random.randint(value._String__min_length,
+                                       value._String__max_length))
+            return d
+
+        mocked = _mock(cls.get_scheme())
+        mocked.update(override or {})
+        return cls(mocked)
+
     def __init__(self, data):
         self._object = data or {}
 

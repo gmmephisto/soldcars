@@ -5,6 +5,9 @@ description = "Sold cars storage app"
 authors = ["Mikhail Ushanov <gm.mephisto@gmail.com>"]
 license = "MIT"
 
+[tool.poetry.scripts]
+soldcars-cli = "soldcars.main:cli"
+
 [tool.poetry.dependencies]
 python = "^3.6"
 motor = "^2.0"
