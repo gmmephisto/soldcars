@@ -2,6 +2,9 @@
 
 ## Install
 
+* Install `docker` and `docker-compose`:
+    * https://docs.docker.com/install/
+    * https://docs.docker.com/compose/install/
 * Up containers:
     * `docker-compose up -d --scale app=3`
 * Ensure database index:
