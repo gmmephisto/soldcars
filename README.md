@@ -5,6 +5,8 @@
 * Install `docker` and `docker-compose`:
     * https://docs.docker.com/install/
     * https://docs.docker.com/compose/install/
+* Build images:
+    * `docker-compose build`
 * Up containers:
     * `docker-compose up -d --scale app=3`
 * Init database replica and ensure database index:
