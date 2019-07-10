@@ -34,12 +34,14 @@ import json
 import os
 import random
 import string
+import asyncio
 
 from collections.abc import MutableMapping
 from functools import partial
 
 import motor.motor_asyncio as aiomotor
 import pymongo
+import pymongo.errors
 
 from pymongo import ReadPreference
 from object_validator import validate
@@ -288,3 +290,55 @@ class Car(MutableMapping):
             raise CarAlreadyExists(self["serialNumber"])
 
         return document_id
+
+
+class ReplicaSet:
+    def __init__(self, name=None, hosts=None, loop=None):
+        name = os.getenv("MONGODB_REPLSET", name)
+        if not name:
+            raise Exception("Invalid replica set name.")
+        self.name = name
+        hosts = os.getenv("MONGODB_HOSTS").split(",") or hosts
+        if not hosts:
+            raise Exception("Invalid replica set hists.")
+        self.hosts = sorted(hosts)
+        self.admin = self.hosts[0]
+        self.loop = loop or asyncio.get_event_loop()
+        self.client = aiomotor.AsyncIOMotorClient(host=[self.admin])
+        self.timeout = 300 * len(self.hosts)
+
+    async def init(self):
+        replset = await self.client.local.system.replset.find_one()
+        if replset:
+            return replset
+
+        config = {
+            "_id": self.name,
+            "members": [{
+                "_id": i,
+                "host": host,
+            } for i, host in enumerate(self.hosts)]
+        }
+        return await self.client.admin.command("replSetInitiate", config)
+
+    async def wait(self):
+        start = self.loop.time()
+        while self.loop.time() - start < self.timeout:
+            try:
+                status = await self.client.admin.command("replSetGetStatus")
+                alive = True
+                for member in status["members"]:
+                    alive &= member["state"] in (1, 2)  # PRIMARY, SECONDARY
+            except pymongo.errors.OperationFailure:
+                status = None
+                alive = False
+            if alive:
+                break
+            asyncio.sleep(1)
+        else:
+            if status is None:
+                raise Exception("Unable to retrieve replica set status.")
+            else:
+                raise Exception(
+                    f"Unable to intialize to replica set {self.name}.")
+        return self.loop.time() - start

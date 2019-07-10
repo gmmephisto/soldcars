@@ -1,3 +1,5 @@
 storage:
   journal:
     enabled: true
+replication:
+  replSetName: global

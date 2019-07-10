@@ -1,10 +1,26 @@
 version: "3"
 services:
-  mongo:
+  mongo01:
     image: mongo:3.4
     command: --config /etc/mongod.conf
     volumes:
-      - data:/data/db
+      - data01:/data/db
+      - ./mongod.yaml:/etc/mongod.conf
+    expose:
+      - 27017
+  mongo02:
+    image: mongo:3.4
+    command: --config /etc/mongod.conf
+    volumes:
+      - data02:/data/db
+      - ./mongod.yaml:/etc/mongod.conf
+    expose:
+      - 27017
+  mongo03:
+    image: mongo:3.4
+    command: --config /etc/mongod.conf
+    volumes:
+      - data03:/data/db
       - ./mongod.yaml:/etc/mongod.conf
     expose:
       - 27017
@@ -12,8 +28,10 @@ services:
     build: .
     expose:
       - 3000
+    env_file:
+      - ./soldcars.env
     depends_on:
-      - mongo
+      - cli
     labels:
       # NOTE: access app instances from localhost and cli container
       - "traefik.frontend.rule=Host:localhost,balancer"
@@ -22,8 +40,12 @@ services:
     command: sh
     stdin_open: true
     tty: true
+    env_file:
+      - ./soldcars.env
     depends_on:
-      - app
+      - mongo01
+      - mongo02
+      - mongo03
   balancer:
     image: traefik
     command: --docker
@@ -35,4 +57,6 @@ services:
       - app
 
 volumes:
-  data:
+  data01:
+  data02:
+  data03:

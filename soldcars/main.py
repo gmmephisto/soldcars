@@ -12,7 +12,7 @@ from aiohttp import web
 from object_validator import ValidationError, validate
 from object_validator import DictScheme
 
-from .db import Car, Motor
+from .db import Car, Motor, ReplicaSet
 from .exceptions import BaseError
 
 routes = web.RouteTableDef()
@@ -137,6 +137,9 @@ def cli():
     indexcars = commands.add_parser("index")
     assert indexcars
 
+    replcars = commands.add_parser("replica")
+    assert replcars
+
     args = parser.parse_args()
 
     loop = asyncio.get_event_loop()
@@ -163,6 +166,12 @@ def cli():
         loop.run_until_complete(Car.collection().drop())
     elif args.command == "index":
         loop.run_until_complete(Car.ensure_index())
+    elif args.command == "replica":
+        async def replica():
+            replset = ReplicaSet(loop=loop)
+            await replset.init()
+            await replset.wait()
+        loop.run_until_complete(replica())
     else:
         parser.error("too few arguments")
 

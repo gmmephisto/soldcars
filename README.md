@@ -7,7 +7,8 @@
     * https://docs.docker.com/compose/install/
 * Up containers:
     * `docker-compose up -d --scale app=3`
-* Ensure database index:
+* Init database replica and ensure database index:
+    * `docker-compose exec cli soldcars-cli replica`
     * `docker-compose exec cli soldcars-cli index`
 * Add fake cars (optional):
     * `docker-compose exec cli soldcars-cli fake 1000 0`
