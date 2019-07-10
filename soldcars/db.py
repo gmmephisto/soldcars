@@ -78,6 +78,15 @@ class Motor(metaclass=Singleton):
     def __init__(self):
         self._clients = {}
 
+    def kwargs(self, **kwargs):
+        """Return motor arguments."""
+
+        client_kwargs = {
+            "host": os.getenv("MONGODB_HOSTS", "mongo:27017").split(","),
+            "replicaSet": os.getenv("MONGODB_REPLSET")
+        }
+        return client_kwargs
+
     def new(self, key, **kwargs):
         """Return and register new motor with specified key."""
 
@@ -85,13 +94,9 @@ class Motor(metaclass=Singleton):
         if client:
             client.close()
 
-        client_kwargs = {
-            "host": os.getenv("MONGODB_HOSTS", "mongo:27017").split(","),
-            "replicaSet": os.getenv("MONGODB_REPLSET")
-        }
-        client_kwargs.update(kwargs)
-        self._clients[key] = \
-            client = aiomotor.AsyncIOMotorClient(**client_kwargs)
+        client_kwargs = self.kwargs(**kwargs)
+        self._clients[key] = client = \
+            aiomotor.AsyncIOMotorClient(**client_kwargs)
         return client
 
     def get(self, key):
@@ -107,6 +112,12 @@ class Motor(metaclass=Singleton):
             return self.get(key)
         except KeyError:
             return self.new(key, **kwargs)
+
+    def close(self):
+        """Close motors."""
+
+        for motor in self._clients.values():
+            motor.close()
 
 
 class Car(MutableMapping):
