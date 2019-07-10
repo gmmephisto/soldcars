@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import json
 import logging
+import socket
 
 from functools import wraps
 
@@ -90,6 +91,12 @@ async def add_car(request, data):
     car = Car(data)
     await car.insert()
     return {"serial": car["serialNumber"]}
+
+
+@routes.get("/api/hostname")
+@jsonhandler
+async def get_cars(request):
+    return {"host": socket.gethostname()}
 
 
 async def init(loop):
