@@ -66,7 +66,9 @@ Char = partial(String, min_length=0, max_length=1)
 Integer8 = partial(Integer, min=0, max=(2 ** 8) - 1)
 Integer16 = partial(Integer, min=0, max=(2 ** 16) - 1)
 Integer32 = partial(Integer, min=0, max=(2 ** 32) - 1)
-Integer64 = partial(Integer, min=0, max=(2 ** 64) - 1)
+# FIXME: try to store long integers as strings in database
+#        and convert them in ORM classes
+# Integer64 = partial(Integer, min=0, max=(2 ** 64) - 1)
 """Integer fields."""
 
 
@@ -123,8 +125,10 @@ class Car(MutableMapping):
     __slots__ = ("_object",)
     __scheme__ = {
         "ownerName": OrdinaryString(),
-        "serialNumber": Integer64(),
-        "modelYear": Integer64(),
+        "serialNumber": Integer32(),
+        "modelYear": Integer32(),
+        # "serialNumber": Integer64(),
+        # "modelYear": Integer64(),
         "code": OrdinaryString(),
         "vehicleCode": OrdinaryString(),
         "engine": DictScheme({
