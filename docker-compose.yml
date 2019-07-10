@@ -2,9 +2,10 @@ version: "3"
 services:
   mongo:
     image: mongo:3.4
-    command: --smallfiles
+    command: --config /etc/mongod.conf
     volumes:
       - data:/data/db
+      - ./mongod.yaml:/etc/mongod.conf
     expose:
       - 27017
   app:
