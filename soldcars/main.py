@@ -2,13 +2,18 @@ import argparse
 import asyncio
 import json
 import logging
+import pathlib
+import pkg_resources
 import socket
 
 from functools import wraps
 
 import aiohttp
+import aiohttp_jinja2
+import jinja2
 
 from aiohttp import web
+from aiohttp_jinja2 import template
 from object_validator import ValidationError, validate
 from object_validator import DictScheme
 
@@ -103,11 +108,22 @@ async def get_cars(request):
     return {"host": socket.gethostname()}
 
 
+@routes.get("/cars")
+@template("index.html")
+async def get_cars_search(request):
+    return {}
+
+
 async def init(loop):
     app = web.Application(loop=loop)
     app.add_routes(routes)
 
     Motor().default(io_loop=loop)
+
+    templates_path = pathlib.Path(
+        pkg_resources.resource_filename(__name__, "templates"))
+    aiohttp_jinja2.setup(
+        app, loader=jinja2.FileSystemLoader(str(templates_path)))
     return app
 
 

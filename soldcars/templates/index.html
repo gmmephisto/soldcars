@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+    <title>Search</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<html>
+
+<script>
+    $(document).ready(function () {
+        $("form").submit(function (event) {
+            event.preventDefault();
+            var serial = $("input[name=search]").val()
+            $.get({
+                url: "http://localhost/api/cars/" + serial,
+                crossDomain: true,
+            }).done(function (result) {
+                $("#result").html(JSON.stringify(result, undefined, 2));
+            }).fail(function (error) {
+                $("#result").html(error.responseJSON.error);
+            });
+        })
+    });
+</script>
+
+<style>
+    pre {
+        white-space: pre-wrap;
+        white-space: -moz-pre-wrap;
+        white-space: -pre-wrap;
+        white-space: -o-pre-wrap;
+        word-wrap: break-word;
+    }
+</style>
+
+<body>
+    <nav class="teal">
+        <div class="nav-wrapper container">
+            <form>
+                <div class="input-field">
+                    <input id="search" type="search" name="search" placeholder="Enter car serial number">
+                    <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+                    <i class="material-icons">close</i>
+                </div>
+            </form>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                <div class="col s12">
+                    <div class="card">
+                        <div class="card-content">
+                            <pre id="result"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
