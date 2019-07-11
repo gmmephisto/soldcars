@@ -36,6 +36,10 @@ Database deployed in three containers as a replica set. The application uses tha
     * `curl -X POST -d '<object>' -H 'content-type: application/json' localhost/api/cars/` - add car object
     * `curl localhost/api/hostname` - detect backend hostname
 
+## UI
+
+Cars search page is available on `http://localhost/cars`.
+
 ## Manage
 
 Use `cli` container and `soldcars-cli` tool for manage database, add fake cars, etc.
