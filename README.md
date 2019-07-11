@@ -32,7 +32,8 @@ Database deployed in three containers as a replica set. The application uses tha
     * `(cli) # apk add curl`
     * `(cli) # curl balancer/api/cars/<serial>`
 * From `localhost`:
-    * `curl localhost/api/cars/<serial>`
+    * `curl localhost/api/cars/<serial>` - get car by serial
+    * `curl -X POST -d '<object>' -H 'content-type: application/json' localhost/api/cars/` - add car object
     * `curl localhost/api/hostname` - detect backend hostname
 
 ## Manage
