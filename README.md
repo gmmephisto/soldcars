@@ -7,8 +7,8 @@
 * Balancer: `traefik`
 * Deploy: `docker`, `docker-compose`
 
-Application backend is stateless, lives on port 3000 and could be scaled up to several instances. Balancer lives on port 80 and works as revers-proxy to application instances. Also, it listens to docker events and detect application instances scaling.
-Database deployed in three container as replica set. Application uses that setup for increasing read capacity and data durability.
+Application backend is stateless, lives on port 3000 and could be scaled up to several instances. Balancer lives on port 80 and works as reverse-proxy to application instances. Also, it listens to docker events and detects application instances scaling.
+Database deployed in three containers as a replica set. The application uses that setup for increasing read capacity and data durability.
 
 ## Install
 
