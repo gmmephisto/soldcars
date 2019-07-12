@@ -17,8 +17,7 @@
             event.preventDefault();
             var serial = $("input[name=search]").val()
             $.get({
-                url: "http://localhost/api/cars/" + serial,
-                crossDomain: true,
+                url: "/api/cars/" + serial,
             }).done(function (result) {
                 $("#result").html(JSON.stringify(result, undefined, 2));
             }).fail(function (error) {
